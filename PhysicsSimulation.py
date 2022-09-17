@@ -32,7 +32,7 @@ def display_time(seconds, granularity=2):
     return ', '.join(result[:granularity])
 
 
-def inbetween_points(a1, b1, a2, b2, r):
+def inbetween_points(a1, b1, a2, b2, r): # I'm proud of this. Here's a Desmos link: https://www.desmos.com/calculator/aauki3uiph
     dist_coords = [a1 - a2, b1 - b2]
 
     # normalized_dist_coords = [dist_coords[0] / dist_coords[0], dist_coords[1] / dist_coords[1]]
@@ -135,6 +135,8 @@ class Object:
 
         log(f"Ticked {self.name}, velocity {self.velocity}")
 
+# Uncomment and recomment to change which one is being used
+# # Solar system start
 # gridScale = 50000000 # 1k meters = 1 pixel
 # radiusScale = 50000000
 # Sun = Object("Sun", (0, 0), 696340 * 1000, 1.989 * (10 ** 30), (255, 0, 0))
@@ -151,9 +153,11 @@ class Object:
 
 # def get_offset():
 #     return [Sun.position[0], Sun.position[1]]
+# # Solar system end
 
 
 
+# Moon-Earth start
 gridScale = 1000000 # 1k meters = 1 pixel
 radiusScale = 500000
 Moon = Object("Moon", (384467 * 1000, 0), 1737.4 * 1000, 7.34767309 * math.pow(10, 22), (125, 125, 125))
@@ -162,6 +166,7 @@ objects = [Moon, Earth]
 # runtimeScale = gridScale / 15
 runtimeScale = 2332800
 sliders = False
+# Moon-Earth end
 
 Moon.velocity = [
     0,
@@ -170,6 +175,8 @@ Moon.velocity = [
 
 def get_offset():
     return [Earth.position[0], Earth.position[1]]
+
+
 
 
 
