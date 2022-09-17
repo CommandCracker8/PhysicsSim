@@ -34,8 +34,8 @@ def inbetween_points(a1, b1, a2, b2, r): # I'm proud of this. Here's a Desmos li
 
     #theta = math.atan2(b2-b1,a2-a1)%math.pi
 
-    displacement=[normalised_dist_coords[0]*r,
-                  normalised_dist_coords[1]*r]
+    displacement=[normalized_dist_coords[0]*r,
+                  normalized_dist_coords[1]*r]
     position=[a1+displacement[0],
               b1+displacement[1]]
     return dist_coords, displacement, position#, theta
