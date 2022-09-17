@@ -130,51 +130,68 @@ class Object:
         self.trail.append((self.position.copy(), frame + 1))
         # print(self.trail)
 
-        self.position[0] = self.position[0] + ((self.velocity[0] * runtimeScale) / fps)
-        self.position[1] = self.position[1] + ((self.velocity[1] * runtimeScale) / fps)
+        self.position[0] = self.position[0] + ((self.velocity[0] * system.runtimeScale) / fps)
+        self.position[1] = self.position[1] + ((self.velocity[1] * system.runtimeScale) / fps)
 
         log(f"Ticked {self.name}, velocity {self.velocity}")
 
-# Uncomment and recomment to change which one is being used
-# # Solar system start
-# gridScale = 50000000 # 1k meters = 1 pixel
-# radiusScale = 50000000
-# Sun = Object("Sun", (0, 0), 696340 * 1000, 1.989 * (10 ** 30), (255, 0, 0))
-# Mercury = Object("Mercury", (69892000000, 0), (2439.7 * metersInKilometers), 3.285 * (10 ** 23), (200, 200, 200))
-# Venus = Object("Venus", (107490000000, 0), (6051.8 * metersInKilometers), 4.867 * (10 ** 24), (255, 255, 255))
-# Earth = Object("Earth", (149600000000, 0), (6371 * metersInKilometers), 5.9722 * (10 ** 24), (0, 0, 255))
-# Mars = Object("Mars", (214650000000, 0), (3389.5 * metersInKilometers), 6.39 * (10 ** 23), (255, 100, 100))
-# Jupiter = Object("Jupiter", (741.56 * million * metersInKilometers, 0), (69911 * 1000), 1.898 * (10 ** 27), (200, 20, 200))
-# Saturn = Object("Saturn", (1.4734 * billion * metersInKilometers, 0), (58232 * 1000), 5.683 * (10 ** 26), (234,214,184))
-# Uranus = Object("Uranus", (4.474 * billion * metersInKilometers, 0), (24622 * 1000), 1.024 * (10 ** 26), (133,173,219))
-# objects = [Sun, Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus]
-# runtimeScale = 31536000 * 1000
-# sliders = True
+class System():
+    def __init__(self, name = "Unnamed", gridScale = 1000000, radiusScale = 500000, objects = [], runtimeScale = 2332800, sliders = False):
+        self.name = name
+        self.gridScale = gridScale
+        self.radiusScale = radiusScale
+        self.objects = objects
+        self.runtimeScale = runtimeScale
+        self.sliders = sliders
+    
+    def get_object(self, name):
+        for _object in self.objects:
+            if _object.name == name:
+                return _object
 
-# def get_offset():
-#     return [Sun.position[0], Sun.position[1]]
-# # Solar system end
-
-
-
-# Moon-Earth start
-gridScale = 1000000 # 1k meters = 1 pixel
-radiusScale = 500000
-Moon = Object("Moon", (384467 * 1000, 0), 1737.4 * 1000, 7.34767309 * math.pow(10, 22), (125, 125, 125))
-Earth = Object("Earth", (0, 0), (6371 * 1000), 5.9722 * (10 ** 24), (0, 255, 0))
-objects = [Moon, Earth]
-# runtimeScale = gridScale / 15
-runtimeScale = 2332800
-sliders = False
-# Moon-Earth end
-
-Moon.velocity = [
+MoonEarth = System(
+    name = "Moon-Earth",
+    gridScale = 1000000,
+    radiusScale = 500000,
+    objects = [
+        Object("Moon", (384467 * 1000, 0), 1737.4 * 1000, 7.34767309 * math.pow(10, 22), (125, 125, 125)),
+        Object("Earth", (0, 0), (6371 * 1000), 5.9722 * (10 ** 24), (0, 255, 0))
+    ],
+    runtimeScale = 2332800,
+    sliders = False
+)
+MoonEarth.get_object("Moon").velocity = [
     0,
-    (math.sqrt(((6.67 * math.pow(10, -11)) * Earth.mass) / dist(Earth.position, Moon.position)))
+    (math.sqrt(((6.67 * math.pow(10, -11)) * MoonEarth.get_object("Earth").mass) / dist(MoonEarth.get_object("Earth").position, MoonEarth.get_object("Moon").position)))
 ]
-
 def get_offset():
-    return [Earth.position[0], Earth.position[1]]
+    return [MoonEarth.get_object("Earth").position[0], MoonEarth.get_object("Earth").position[1]]
+system = MoonEarth
+
+
+
+
+
+# SolarSystem = System(
+#     name = "Solar System",
+#     gridScale = 50000000,
+#     radiusScale = 50000000,
+#     objects = [
+#         Object("Sun", (0, 0), 696340 * 1000, 1.989 * (10 ** 30), (255, 0, 0)),
+#         Object("Mercury", (69892000000, 0), (2439.7 * metersInKilometers), 3.285 * (10 ** 23), (200, 200, 200)),
+#         Object("Venus", (107490000000, 0), (6051.8 * metersInKilometers), 4.867 * (10 ** 24), (255, 255, 255)),
+#         Object("Earth", (149600000000, 0), (6371 * metersInKilometers), 5.9722 * (10 ** 24), (0, 0, 255)),
+#         Object("Mars", (214650000000, 0), (3389.5 * metersInKilometers), 6.39 * (10 ** 23), (255, 100, 100)),
+#         Object("Jupiter", (741.56 * million * metersInKilometers, 0), (69911 * 1000), 1.898 * (10 ** 27), (200, 20, 200)),
+#         Object("Saturn", (1.4734 * billion * metersInKilometers, 0), (58232 * 1000), 5.683 * (10 ** 26), (234,214,184)),
+#         Object("Uranus", (4.474 * billion * metersInKilometers, 0), (24622 * 1000), 1.024 * (10 ** 26), (133,173,219))
+#     ],
+#     runtimeScale = 31536000 * 1000,
+#     sliders = True
+# )
+# def get_offset():
+#     return [SolarSystem.get_object("Sun").position[0], SolarSystem.get_object("Sun").position[1]]
+# system = SolarSystem
 
 
 
@@ -192,7 +209,7 @@ def to_pygame(coords):
     y_offset = get_offset()[1]
 
     """Convert coordinates into pygame coordinates (center => top left)."""
-    return ((coords[0] / gridScale) + (windowSize[0] / 2) - (x_offset / gridScale), (coords[1] / gridScale) + (windowSize[1] / 2) - (y_offset / gridScale))
+    return ((coords[0] / system.gridScale) + (windowSize[0] / 2) - (x_offset / system.gridScale), (coords[1] / system.gridScale) + (windowSize[1] / 2) - (y_offset / system.gridScale))
 
 pygame.init()
 
@@ -223,7 +240,7 @@ distances = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((0, 210), (10
 trails = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((0, 280), (100, 50)),
                                             text='Trails',
                                             manager=manager)
-if sliders:
+if system.sliders:
     positionSlider = pygame_gui.elements.UIHorizontalSlider(relative_rect=pygame.Rect((120, 0), (200, 50)), manager=manager, start_value=0, value_range=(0, 4.474 * billion * metersInKilometers, 1))
     gridScaleSlider = pygame_gui.elements.UIHorizontalSlider(relative_rect=pygame.Rect((120, 70), (200, 50)), manager=manager, start_value=0, value_range=(10000, 50000000 * 25))
     radiusScaleSlider = pygame_gui.elements.UIHorizontalSlider(relative_rect=pygame.Rect((120, 140), (200, 50)), manager=manager, start_value=0, value_range=(10000, 50000000 * 5))
@@ -253,12 +270,12 @@ while is_running:
 
     # PHYSICS
     if gravityOn:
-        for object1 in objects:
-            for object2 in objects:
+        for object1 in system.objects:
+            for object2 in system.objects:
                 if not(object1.id == object2.id):
                     log(f"Applying gravity to {object1.name} and {object2.name}")
                     Fgravity = G * ((object1.mass * object2.mass) / distSquared(object1.position, object2.position))
-                    movementAmount = ((Fgravity / object1.mass) * runtimeScale) / fps
+                    movementAmount = ((Fgravity / object1.mass) * system.runtimeScale) / fps
 
                     acceleration, dist_coords, theta, position, flip = calculate_acceleration_coordinates(object1, object2, movementAmount)
                     log("Distance Coords: ", dist_coords)
@@ -268,7 +285,7 @@ while is_running:
 
                     object1.acceleration = acceleration
         
-        for _object in objects:
+        for _object in system.objects:
             _object.tick(fps, framesSinceStarted)
 
 
@@ -301,27 +318,27 @@ while is_running:
         
         if event.type == pygame.KEYDOWN:
             if event.unicode == 'q':
-                radiusScale -= 50000000 / 100
+                system.radiusScale -= 50000000 / 100
             if event.unicode == 'w':
-                radiusScale += 50000000 / 100
+                system.radiusScale += 50000000 / 100
             if event.unicode == 'e':
-                gridScale -= 50000000 / 100
+                system.gridScale -= 50000000 / 100
             if event.unicode == 'r':
-                gridScale += 50000000 / 100
+                system.gridScale += 50000000 / 100
             if event.unicode == 't':
-                gridScale -= 50000000 / 100
-                radiusScale -= 50000000 / 100
+                system.gridScale -= 50000000 / 100
+                system.radiusScale -= 50000000 / 100
             if event.unicode == 'y':
-                gridScale += 50000000 / 100
-                radiusScale += 50000000 / 100
+                system.gridScale += 50000000 / 100
+                system.radiusScale += 50000000 / 100
             
-            print(gridScale, radiusScale)
+            print(system.gridScale, system.radiusScale)
         
         # print(positionSlider.get_current_value())
-        if sliders:
+        if system.sliders:
             x_offset = positionSlider.get_current_value()
-            gridScale = gridScaleSlider.get_current_value()
-            radiusScale = radiusScaleSlider.get_current_value()
+            system.gridScale = gridScaleSlider.get_current_value()
+            system.radiusScale = radiusScaleSlider.get_current_value()
 
         manager.process_events(event)
 
@@ -331,22 +348,22 @@ while is_running:
 
     # pygame.draw.circle(window_surface, (255, 0, 0), to_pygame(Sun.position), Sun.radius / gridScale)
     # pygame.draw.circle(window_surface, (0, 255, 0), to_pygame(Earth.position), Earth.radius / gridScale)
-    for _object in objects:
+    for _object in system.objects:
         print(_object.name, _object.position)
         log(f"[Object Position] {_object.name} is now at {_object.position}")
         log(f"[Object Velocity] {_object.name} has a velocity of {_object.velocity}")
 
-        pygame.draw.circle(window_surface, _object.color, to_pygame(_object.position), _object.radius / radiusScale)
+        pygame.draw.circle(window_surface, _object.color, to_pygame(_object.position), _object.radius / system.radiusScale)
         window_surface.blit(font.render(_object.name, False, (255, 255, 255)), to_pygame(_object.position))
 
         if (velocityLinesShow):
             velocity_point = [_object.position[0] + _object.velocity[0] * 500000, _object.position[1] + _object.velocity[1] * 500000]
             pygame.draw.line(window_surface, _object.color, to_pygame(_object.position), to_pygame(velocity_point), 5)
         if (lines):
-            for _object2 in objects:
+            for _object2 in system.objects:
                 pygame.draw.line(window_surface, (255, 255, 255), to_pygame(_object.position), to_pygame(_object2.position), 1)
         if (showDistances):
-            for _object2 in objects[:_object.id]:
+            for _object2 in system.objects[:_object.id]:
                 window_surface.blit(font.render(str(human_format(dist(_object.position, _object2.position))), False, (255, 255, 255)), to_pygame(inbetween_points(_object.position[0], _object.position[1], _object2.position[0], _object2.position[1], dist(_object.position, _object2.position) / 2)[2]))
         if (showTrails):
             for idx, trailPoint in enumerate(_object.trail):
@@ -354,7 +371,7 @@ while is_running:
                 if (frame - trailPoint[1]) >= fps * 15: continue
                 pygame.draw.line(window_surface, _object.color, to_pygame(_object.trail[idx - 1][0]), to_pygame(trailPoint[0]), 5)
     
-    window_surface.blit(font.render(display_time(runtimeScale), False, (255, 255, 255)), (windowSize[0] / 2, 0))
+    window_surface.blit(font.render(display_time(system.runtimeScale), False, (255, 255, 255)), (windowSize[0] / 2, 0))
 
     # pygame.draw.line(window_surface, (255, 255, 255), to_pygame(Sun.position), to_pygame(Earth.position), 1)
     # pygame.draw.line(window_surface, (255, 255, 255), to_pygame(Earth.position), to_pygame(Moon.position), 1)
