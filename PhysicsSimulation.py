@@ -29,7 +29,7 @@ def display_time(seconds, granularity=2):
 def inbetween_points(a1, b1, a2, b2, r): # I'm proud of this. Here's a Desmos link: https://www.desmos.com/calculator/aauki3uiph
     dist_coords = [a1 - a2, b1 - b2]
     distance=math.sqrt(dist_coords[0]**2+dist_coords[1]**2)
-    normalized_dist_coords = [dist_coords[0]/distance, dist_coords[1]/distance] if 0!=dist_coords!=1 else dist_coords
+    normalized_dist_coords = [dist_coords[0]/distance, dist_coords[1]/distance] if 0!=distance!=1 else dist_coords
     # print(normalized_dist_coords)
 
     #theta = math.atan2(b2-b1,a2-a1)%math.pi
@@ -135,7 +135,7 @@ MoonEarth = System(
 )
 MoonEarth.get_object("Moon").velocity = [
     0,
-    (math.sqrt(((6.67 * math.pow(10, -11)) * MoonEarth.get_object("Earth").mass) / dist(MoonEarth.get_object("Earth").position, MoonEarth.get_object("Moon").position)))
+    (-math.sqrt(((6.67 * math.pow(10, -11)) * MoonEarth.get_object("Earth").mass) / dist(MoonEarth.get_object("Earth").position, MoonEarth.get_object("Moon").position)))
 ]
 
 
