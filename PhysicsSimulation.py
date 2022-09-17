@@ -236,8 +236,8 @@ while is_running:
 
     # PHYSICS
     if gravityOn:
-        for i,object1 in enumerate(objects):
-            for object2 in objects[:i]:
+        for i,object1 in enumerate(system.objects):
+            for object2 in system.objects[:i]:
                 log(f"Applying gravity to {object1.name} and {object2.name}")
                 Fgravity = G / distSquared(object1.position, object2.position)
                 movementAmount = Fgravity * runtimeScale / fps
