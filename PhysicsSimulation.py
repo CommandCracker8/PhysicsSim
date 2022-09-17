@@ -240,7 +240,7 @@ while is_running:
             for object2 in system.objects[:i]:
                 log(f"Applying gravity to {object1.name} and {object2.name}")
                 Fgravity = G / distSquared(object1.position, object2.position)
-                movementAmount = Fgravity * runtimeScale / fps
+                movementAmount = Fgravity * system.runtimeScale / fps
 
                 dist_coords, displacement, position = inbetween_points(*(object1.position), *(object2.position), movementAmount)
                 log("Distance Coords: ", dist_coords)
