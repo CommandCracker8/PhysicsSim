@@ -136,13 +136,14 @@ class Object:
         log(f"Ticked {self.name}, velocity {self.velocity}")
 
 class System():
-    def __init__(self, name = "Unnamed", gridScale = 1000000, radiusScale = 500000, objects = [], runtimeScale = 2332800, sliders = False):
+    def __init__(self, name = "Unnamed", gridScale = 1000000, radiusScale = 500000, objects = [], runtimeScale = 2332800, sliders = False, offset_function = lambda: [0, 0]):
         self.name = name
         self.gridScale = gridScale
         self.radiusScale = radiusScale
         self.objects = objects
         self.runtimeScale = runtimeScale
         self.sliders = sliders
+        self.offset_function = offset_function
     
     def get_object(self, name):
         for _object in self.objects:
@@ -158,41 +159,35 @@ MoonEarth = System(
         Object("Earth", (0, 0), (6371 * 1000), 5.9722 * (10 ** 24), (0, 255, 0))
     ],
     runtimeScale = 2332800,
-    sliders = False
+    sliders = False,
+    offset_function = lambda: [MoonEarth.get_object("Earth").position[0], MoonEarth.get_object("Earth").position[1]]
 )
 MoonEarth.get_object("Moon").velocity = [
     0,
     (math.sqrt(((6.67 * math.pow(10, -11)) * MoonEarth.get_object("Earth").mass) / dist(MoonEarth.get_object("Earth").position, MoonEarth.get_object("Moon").position)))
 ]
-def get_offset():
-    return [MoonEarth.get_object("Earth").position[0], MoonEarth.get_object("Earth").position[1]]
+
+
+SolarSystem = System(
+    name = "Solar System",
+    gridScale = 50000000,
+    radiusScale = 50000000,
+    objects = [
+        Object("Sun", (0, 0), 696340 * 1000, 1.989 * (10 ** 30), (255, 0, 0)),
+        Object("Mercury", (69892000000, 0), (2439.7 * metersInKilometers), 3.285 * (10 ** 23), (200, 200, 200)),
+        Object("Venus", (107490000000, 0), (6051.8 * metersInKilometers), 4.867 * (10 ** 24), (255, 255, 255)),
+        Object("Earth", (149600000000, 0), (6371 * metersInKilometers), 5.9722 * (10 ** 24), (0, 0, 255)),
+        Object("Mars", (214650000000, 0), (3389.5 * metersInKilometers), 6.39 * (10 ** 23), (255, 100, 100)),
+        Object("Jupiter", (741.56 * million * metersInKilometers, 0), (69911 * 1000), 1.898 * (10 ** 27), (200, 20, 200)),
+        Object("Saturn", (1.4734 * billion * metersInKilometers, 0), (58232 * 1000), 5.683 * (10 ** 26), (234,214,184)),
+        Object("Uranus", (4.474 * billion * metersInKilometers, 0), (24622 * 1000), 1.024 * (10 ** 26), (133,173,219))
+    ],
+    runtimeScale = 31536000 * 1000,
+    sliders = True,
+    offset_function = lambda: [SolarSystem.get_object("Sun").position[0], SolarSystem.get_object("Sun").position[1]]
+)
+
 system = MoonEarth
-
-
-
-
-
-# SolarSystem = System(
-#     name = "Solar System",
-#     gridScale = 50000000,
-#     radiusScale = 50000000,
-#     objects = [
-#         Object("Sun", (0, 0), 696340 * 1000, 1.989 * (10 ** 30), (255, 0, 0)),
-#         Object("Mercury", (69892000000, 0), (2439.7 * metersInKilometers), 3.285 * (10 ** 23), (200, 200, 200)),
-#         Object("Venus", (107490000000, 0), (6051.8 * metersInKilometers), 4.867 * (10 ** 24), (255, 255, 255)),
-#         Object("Earth", (149600000000, 0), (6371 * metersInKilometers), 5.9722 * (10 ** 24), (0, 0, 255)),
-#         Object("Mars", (214650000000, 0), (3389.5 * metersInKilometers), 6.39 * (10 ** 23), (255, 100, 100)),
-#         Object("Jupiter", (741.56 * million * metersInKilometers, 0), (69911 * 1000), 1.898 * (10 ** 27), (200, 20, 200)),
-#         Object("Saturn", (1.4734 * billion * metersInKilometers, 0), (58232 * 1000), 5.683 * (10 ** 26), (234,214,184)),
-#         Object("Uranus", (4.474 * billion * metersInKilometers, 0), (24622 * 1000), 1.024 * (10 ** 26), (133,173,219))
-#     ],
-#     runtimeScale = 31536000 * 1000,
-#     sliders = True
-# )
-# def get_offset():
-#     return [SolarSystem.get_object("Sun").position[0], SolarSystem.get_object("Sun").position[1]]
-# system = SolarSystem
-
 
 
 
@@ -205,8 +200,8 @@ y_offset = 0
 def to_pygame(coords):
     # x_offset = Sun.position[0]
 
-    x_offset = get_offset()[0]
-    y_offset = get_offset()[1]
+    x_offset = system.offset_function()[0]
+    y_offset = system.offset_function()[1]
 
     """Convert coordinates into pygame coordinates (center => top left)."""
     return ((coords[0] / system.gridScale) + (windowSize[0] / 2) - (x_offset / system.gridScale), (coords[1] / system.gridScale) + (windowSize[1] / 2) - (y_offset / system.gridScale))
