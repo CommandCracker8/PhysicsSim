@@ -1,27 +1,21 @@
 # TODO, tomorrow: add speed slider, make speed able to be per second and show how much time is passing per second (YAY!), orbiting planets in the solar system, zoom in/out, move around with mouse, make collision work
 
-def human_format(num):
-    num = float('{:.3g}'.format(num))
-    magnitude = 0
-    while abs(num) >= 1000:
-        magnitude += 1
-        num /= 1000.0
-    return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'K', 'M', 'B', 'T'][magnitude])
-
 import math, pygame, pygame_gui
+from itertools import accumulate
+def human_format(num):
+    magnitude=math.floor(math.log(num,1000))
+    return(str(num/1000**magnitude)[:4]+['', 'K', 'M', 'B', 'T'][magnitude])
 
-intervals = (
-    ('year(s)', 31536000),
-    ('weeks', 604800),  # 60 * 60 * 24 * 7
-    ('days', 86400),    # 60 * 60 * 24
-    ('hours', 3600),    # 60 * 60
-    ('minutes', 60),
-    ('seconds', 1),
-)
+#intervals=tuple(zip(('seconds','minutes','hours','days','weeks','year(s)'),accumulate((60,60,24,7,52),int.__mul__,initial=1)))
+intervals = (('years',31536000),
+             ('weeks',  604800),  # 60 * 60 * 24 * 7
+             ('days',    86400),    # 60 * 60 * 24
+             ('hours',    3600),    # 60 * 60
+             ('minutes',    60),
+             ('seconds',     1),)
 
 def display_time(seconds, granularity=2):
     result = []
-
     for name, count in intervals:
         value = seconds // count
         if value:
@@ -34,40 +28,17 @@ def display_time(seconds, granularity=2):
 
 def inbetween_points(a1, b1, a2, b2, r):
     dist_coords = [a1 - a2, b1 - b2]
-
-    # normalized_dist_coords = [dist_coords[0] / dist_coords[0], dist_coords[1] / dist_coords[1]]
+    distance=math.sqrt(dist_coords[0]**2+dist_coords[1]**2)
+    normalized_dist_coords = [dist_coords[0]/distance, dist_coords[1]/distance] if 0!=dist_coords!=1 else dist_coords
     # print(normalized_dist_coords)
 
-    flip = ((math.pi * 2) * ((((a1 - a2) / abs(a1 - a2)) + 1) / 2))
-    if flip == 0: 
-        flip = math.pi * 2
-    else: 
-        flip = 0
-        
-    print(flip)
-    theta = (90 - ((math.atan2(a2 - a1 , b2 - b1) + flip) * RAD2DEG)) / RAD2DEG
+    #theta = math.atan2(b2-b1,a2-a1)%math.pi
 
-    position = [
-        a1 + (r * math.cos(theta)),
-        b1 + (r * math.sin(theta))
-    ]
-
-    return dist_coords, theta, position, flip
-
-def calculate_acceleration_coordinates(object1, object2, speed):
-    a1 = object1.position[0]
-    b1 = object1.position[1]
-    a2 = object2.position[0]
-    b2 = object2.position[1]
-
-    dist_coords, theta, position, flip = inbetween_points(a1, b1, a2, b2, speed)
-
-    acceleration = [
-        position[0] - a1,
-        position[1] - b1
-    ]
-
-    return acceleration, dist_coords, theta, position, flip
+    displacement=[normalised_dist_coords[0]*r,
+                  normalised_dist_coords[1]*r]
+    position=[a1+displacement[0],
+              b1+displacement[1]]
+    return dist_coords, displacement, position#, theta
 
 # all masses are in kg
 # all distances are in meters
@@ -207,7 +178,7 @@ linesToggles = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((0, 0), (1
 gravityToggle = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((0, 70), (100, 50)),
                                             text='Gravity',
                                             manager=manager)
-valocityLines = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((0, 140), (100, 50)),
+velocityLines = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((0, 140), (100, 50)),
                                             text='Velocity',
                                             manager=manager)
 distances = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((0, 210), (100, 50)),
@@ -246,20 +217,19 @@ while is_running:
 
     # PHYSICS
     if gravityOn:
-        for object1 in objects:
-            for object2 in objects:
-                if not(object1.id == object2.id):
-                    log(f"Applying gravity to {object1.name} and {object2.name}")
-                    Fgravity = G * ((object1.mass * object2.mass) / distSquared(object1.position, object2.position))
-                    movementAmount = ((Fgravity / object1.mass) * runtimeScale) / fps
+        for i,object1 in enumerate(objects):
+            for object2 in objects[:i]:
+                log(f"Applying gravity to {object1.name} and {object2.name}")
+                Fgravity = G / distSquared(object1.position, object2.position)
+                movementAmount = Fgravity * runtimeScale / fps
 
-                    acceleration, dist_coords, theta, position, flip = calculate_acceleration_coordinates(object1, object2, movementAmount)
-                    log("Distance Coords: ", dist_coords)
-                    print(flip)
-                    log("Theta: ", theta * 57.2958)
-                    log("Acceleration: ", object1.acceleration)
+                dist_coords, displacement, position = inbetween_points(*(object1.position), *(object2.position), movementAmount)
+                log("Distance Coords: ", dist_coords)
+                #log("Theta: ", theta * 57.2958)
 
-                    object1.acceleration = acceleration
+                object1.acceleration = displacement*object2.mass
+                object2.acceleration = displacement*object1.mass
+                log("Accelerations: ", object1.acceleration,object2.acceleration)
         
         for _object in objects:
             _object.tick(fps, framesSinceStarted)
@@ -273,9 +243,9 @@ while is_running:
             is_running = False
             logfile.close()
 
-        if event.type == pygame_gui.UI_BUTTON_PRESSED:
+        elif event.type == pygame_gui.UI_BUTTON_PRESSED:
             if event.ui_element == linesToggles:
-                lines = not(lines)
+                lines ^= True
                 if lines:
                     log("\n\n Now drawing lines. \n\n")
                 else:
@@ -285,14 +255,14 @@ while is_running:
 
                 gravityOn = True
                 log("\n\n Simulation Started. \n\n")
-            if event.ui_element == valocityLines:
-                velocityLinesShow = not(velocityLinesShow)
+            if event.ui_element == velocityLines:
+                velocityLinesShow ^= True
             if event.ui_element == distances:
-                showDistances = not(showDistances)
+                showDistances ^= True
             if event.ui_element == trails:
-                showTrails = not(showTrails)
+                showTrails ^= True
         
-        if event.type == pygame.KEYDOWN:
+        elif event.type == pygame.KEYDOWN:
             if event.unicode == 'q':
                 radiusScale -= 50000000 / 100
             if event.unicode == 'w':
@@ -332,16 +302,16 @@ while is_running:
         pygame.draw.circle(window_surface, _object.color, to_pygame(_object.position), _object.radius / radiusScale)
         window_surface.blit(font.render(_object.name, False, (255, 255, 255)), to_pygame(_object.position))
 
-        if (velocityLinesShow):
+        if velocityLinesShow:
             velocity_point = [_object.position[0] + _object.velocity[0] * 500000, _object.position[1] + _object.velocity[1] * 500000]
             pygame.draw.line(window_surface, _object.color, to_pygame(_object.position), to_pygame(velocity_point), 5)
-        if (lines):
+        if lines:
             for _object2 in objects:
                 pygame.draw.line(window_surface, (255, 255, 255), to_pygame(_object.position), to_pygame(_object2.position), 1)
-        if (showDistances):
+        if showDistances:
             for _object2 in objects[:_object.id]:
                 window_surface.blit(font.render(str(human_format(dist(_object.position, _object2.position))), False, (255, 255, 255)), to_pygame(inbetween_points(_object.position[0], _object.position[1], _object2.position[0], _object2.position[1], dist(_object.position, _object2.position) / 2)[2]))
-        if (showTrails):
+        if showTrails:
             for idx, trailPoint in enumerate(_object.trail):
                 if idx == 0 or idx == 1: continue
                 if (frame - trailPoint[1]) >= fps * 15: continue
