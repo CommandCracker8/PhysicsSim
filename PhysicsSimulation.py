@@ -246,8 +246,8 @@ while is_running:
                 log("Distance Coords: ", dist_coords)
                 #log("Theta: ", theta * 57.2958)
 
-                object1.acceleration = displacement*object2.mass
-                object2.acceleration = displacement*object1.mass
+                object1.acceleration = [i*object2.mass for i in displacement]
+                object2.acceleration = [i*object1.mass for i in displacement]
                 log("Accelerations: ", object1.acceleration,object2.acceleration)
         
         for _object in system.objects:
