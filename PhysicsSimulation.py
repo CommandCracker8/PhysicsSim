@@ -28,17 +28,40 @@ def display_time(seconds, granularity=2):
 
 def inbetween_points(a1, b1, a2, b2, r): # I'm proud of this. Here's a Desmos link: https://www.desmos.com/calculator/aauki3uiph
     dist_coords = [a1 - a2, b1 - b2]
-    distance=math.sqrt(dist_coords[0]**2+dist_coords[1]**2)
-    normalized_dist_coords = [dist_coords[0]/distance, dist_coords[1]/distance] if 0!=distance!=1 else dist_coords
+
+    # normalized_dist_coords = [dist_coords[0] / dist_coords[0], dist_coords[1] / dist_coords[1]]
     # print(normalized_dist_coords)
 
-    #theta = math.atan2(b2-b1,a2-a1)%math.pi
+    flip = ((math.pi * 2) * ((((a1 - a2) / abs(a1 - a2)) + 1) / 2))
+    if flip == 0: 
+        flip = math.pi * 2
+    else: 
+        flip = 0
+        
+    print(flip)
+    theta = (90 - ((math.atan2(a2 - a1 , b2 - b1) + flip) * RAD2DEG)) / RAD2DEG
 
-    displacement=[normalized_dist_coords[0]*r,
-                  normalized_dist_coords[1]*r]
-    position=[a1+displacement[0],
-              b1+displacement[1]]
-    return dist_coords, displacement, position#, theta
+    position = [
+        a1 + (r * math.cos(theta)),
+        b1 + (r * math.sin(theta))
+    ]
+
+    return dist_coords, theta, position, flip
+
+def calculate_acceleration_coordinates(object1, object2, speed):
+    a1 = object1.position[0]
+    b1 = object1.position[1]
+    a2 = object2.position[0]
+    b2 = object2.position[1]
+
+    dist_coords, theta, position, flip = inbetween_points(a1, b1, a2, b2, speed)
+
+    acceleration = [
+        position[0] - a1,
+        position[1] - b1
+    ]
+
+    return acceleration, dist_coords, theta, position, flip
 
 # all masses are in kg
 # all distances are in meters
@@ -135,7 +158,7 @@ MoonEarth = System(
 )
 MoonEarth.get_object("Moon").velocity = [
     0,
-    (-math.sqrt(((6.67 * math.pow(10, -11)) * MoonEarth.get_object("Earth").mass) / dist(MoonEarth.get_object("Earth").position, MoonEarth.get_object("Moon").position)))
+    (math.sqrt(((6.67 * math.pow(10, -11)) * MoonEarth.get_object("Earth").mass) / dist(MoonEarth.get_object("Earth").position, MoonEarth.get_object("Moon").position)))
 ]
 
 
@@ -236,19 +259,20 @@ while is_running:
 
     # PHYSICS
     if gravityOn:
-        for i,object1 in enumerate(system.objects):
-            for object2 in system.objects[:i]:
-                log(f"Applying gravity to {object1.name} and {object2.name}")
-                Fgravity = G / distSquared(object1.position, object2.position)
-                movementAmount = Fgravity * system.runtimeScale / fps
+        for object1 in system.objects:
+            for object2 in system.objects:
+                if not(object1.id == object2.id):
+                    log(f"Applying gravity to {object1.name} and {object2.name}")
+                    Fgravity = G * ((object1.mass * object2.mass) / distSquared(object1.position, object2.position))
+                    movementAmount = ((Fgravity / object1.mass) * system.runtimeScale) / fps
 
-                dist_coords, displacement, position = inbetween_points(*(object1.position), *(object2.position), movementAmount)
-                log("Distance Coords: ", dist_coords)
-                #log("Theta: ", theta * 57.2958)
+                    acceleration, dist_coords, theta, position, flip = calculate_acceleration_coordinates(object1, object2, movementAmount)
+                    log("Distance Coords: ", dist_coords)
+                    print(flip)
+                    log("Theta: ", theta * 57.2958)
+                    log("Acceleration: ", object1.acceleration)
 
-                object1.acceleration = [i*object2.mass for i in displacement]
-                object2.acceleration = [i*object1.mass for i in displacement]
-                log("Accelerations: ", object1.acceleration,object2.acceleration)
+                    object1.acceleration = acceleration
         
         for _object in system.objects:
             _object.tick(fps, framesSinceStarted)
