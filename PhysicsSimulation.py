@@ -99,7 +99,7 @@ def diff(n1, n2):
 class Object:
     id = 0
 
-    def __init__(self, name, position, radius, mass, color = (255, 255, 255), starting_velocity = [0, 0]):
+    def __init__(self, name, position, radius, mass, color = (255, 255, 255)):
         self.name = name
         self.position = list(position)
         self.radius = radius
@@ -149,16 +149,18 @@ MoonEarth = System(
     gridScale = 1000000,
     radiusScale = 500000,
     objects = [
-        Object("Moon", (384467 * 1000, 0), 1737.4 * 1000, 7.34767309 * math.pow(10, 22), (125, 125, 125), starting_velocity = [
-            0,
-            (math.sqrt(((6.67 * math.pow(10, -11)) * MoonEarth.get_object("Earth").mass) / dist(MoonEarth.get_object("Earth").position, MoonEarth.get_object("Moon").position)))
-        ]),
+        Object("Moon", (384467 * 1000, 0), 1737.4 * 1000, 7.34767309 * math.pow(10, 22), (125, 125, 125)),
         Object("Earth", (0, 0), (6371 * 1000), 5.9722 * (10 ** 24), (0, 255, 0))
     ],
     runtimeScale = 2332800,
     sliders = False,
     offset_function = lambda: [MoonEarth.get_object("Earth").position[0], MoonEarth.get_object("Earth").position[1]]
 )
+
+MoonEarth.get_object("Moon").velocity = [
+    0,
+    (math.sqrt(((6.67 * math.pow(10, -11)) * MoonEarth.get_object("Earth").mass) / dist(MoonEarth.get_object("Earth").position, MoonEarth.get_object("Moon").position)))
+]
 
 SolarSystem = System(
     name = "Solar System",
