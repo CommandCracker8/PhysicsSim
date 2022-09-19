@@ -1,4 +1,4 @@
-# TODO, tomorrow: add speed slider, make speed able to be per second and show how much time is passing per second (YAY!), orbiting planets in the solar system, zoom in/out, move around with mouse, make collision work
+# TODO, tomorrow: add speed slider, orbiting planets in the solar system, zoom in/out, move around with mouse, make collision work
 
 import math, pygame, pygame_gui
 from itertools import accumulate
