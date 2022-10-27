@@ -357,7 +357,7 @@ while is_running:
         if showTrails:
             for idx, trailPoint in enumerate(_object.trail):
                 if idx == 0 or idx == 1: continue
-                if (frame - trailPoint[1]) >= fps * 15: continue
+                if (frame - trailPoint[1]) >= 60 * 15: continue # TODO: make fps better
                 pygame.draw.line(window_surface, _object.color, to_pygame(_object.trail[idx - 1][0]), to_pygame(trailPoint[0]), 5)
     
     window_surface.blit(font.render(display_time(system.runtimeScale), False, (255, 255, 255)), (windowSize[0] / 2, 0))
