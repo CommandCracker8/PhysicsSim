@@ -162,6 +162,11 @@ MoonEarth.get_object("Moon").velocity = [
     (math.sqrt((G * MoonEarth.get_object("Earth").mass) / dist(MoonEarth.get_object("Earth").position, MoonEarth.get_object("Moon").position)))
 ]
 
+MoonEarth.get_object("Earth").velocity = [
+    0,
+    (math.sqrt((G * MoonEarth.get_object("Moon").mass) / dist(MoonEarth.get_object("Moon").position, MoonEarth.get_object("Earth").position)))
+]
+
 SolarSystem = System(
     name = "Solar System",
     gridScale = 50000000,
