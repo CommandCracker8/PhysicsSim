@@ -159,7 +159,7 @@ MoonEarth = System(
 
 MoonEarth.get_object("Moon").velocity = [
     0,
-    (math.sqrt(((6.67 * math.pow(10, -11)) * MoonEarth.get_object("Earth").mass) / dist(MoonEarth.get_object("Earth").position, MoonEarth.get_object("Moon").position)))
+    (math.sqrt((G * MoonEarth.get_object("Earth").mass) / dist(MoonEarth.get_object("Earth").position, MoonEarth.get_object("Moon").position)))
 ]
 
 SolarSystem = System(
