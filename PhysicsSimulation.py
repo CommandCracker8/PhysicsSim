@@ -96,6 +96,13 @@ def distSquared(p1, p2):
 def diff(n1, n2):
     return max(n1, n2) - min(n1, n2)
 
+
+def orbit(system, midObject, orbitee):
+    system.get_object(orbitee).velocity = [
+        0,
+        (math.sqrt((G * system.get_object(midObject).mass) / dist(system.get_object(midObject).position, system.get_object(orbitee).position)))
+    ]
+
 class Object:
     id = 0
 
@@ -157,15 +164,8 @@ MoonEarth = System(
     offset_function = lambda: [MoonEarth.get_object("Earth").position[0], MoonEarth.get_object("Earth").position[1]]
 )
 
-MoonEarth.get_object("Moon").velocity = [
-    0,
-    (math.sqrt((G * MoonEarth.get_object("Earth").mass) / dist(MoonEarth.get_object("Earth").position, MoonEarth.get_object("Moon").position)))
-]
-
-MoonEarth.get_object("Earth").velocity = [
-    0,
-    (math.sqrt((G * MoonEarth.get_object("Moon").mass) / dist(MoonEarth.get_object("Moon").position, MoonEarth.get_object("Earth").position)))
-]
+orbit(MoonEarth, "Earth", "Moon")
+orbit(MoonEarth, "Moon", "Earth")
 
 SolarSystem = System(
     name = "Solar System",
