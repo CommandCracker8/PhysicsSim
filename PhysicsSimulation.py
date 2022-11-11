@@ -97,11 +97,17 @@ def diff(n1, n2):
     return max(n1, n2) - min(n1, n2)
 
 
-def orbit(system, midObject, orbitee):
-    system.get_object(orbitee).velocity = [
-        0,
-        (math.sqrt((G * system.get_object(midObject).mass) / dist(system.get_object(midObject).position, system.get_object(orbitee).position)))
-    ]
+def orbit(system, midObject, orbitee, reverseDir = False):
+    if reverseDir:
+        system.get_object(orbitee).velocity = [
+            (math.sqrt((G * system.get_object(midObject).mass) / dist(system.get_object(midObject).position, system.get_object(orbitee).position))),
+            0
+        ]
+    else:
+        system.get_object(orbitee).velocity = [
+            0,
+            (math.sqrt((G * system.get_object(midObject).mass) / dist(system.get_object(midObject).position, system.get_object(orbitee).position)))
+        ]
 
 class Object:
     id = 0
