@@ -171,7 +171,7 @@ MoonEarth = System(
 )
 
 orbit(MoonEarth, "Earth", "Moon")
-orbit(MoonEarth, "Moon", "Earth")
+orbit(MoonEarth, "Moon", "Earth", True)
 
 SolarSystem = System(
     name = "Solar System",
